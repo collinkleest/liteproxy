@@ -1,4 +1,4 @@
-FROM golang:1.23.1-alpine AS build
+FROM golang:alpine AS build
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY go.mod ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main ./src
 
 FROM alpine:latest
 

@@ -8,7 +8,7 @@ networks:
 services:
   liteproxy:
     container_name: liteproxy-service
-    image: "ckleest/liteproxy:latest"
+    build: .
     ports:
       - "8082:8082"
     networks:
