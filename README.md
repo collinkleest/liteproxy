@@ -17,13 +17,13 @@ go mod download
 Run the app
 
 ```bash
-go run main.go
+go run src/main.go
 ```
 
 Build the app
 
 ```bash
-go build main.go
+go build src/main.go
 ```
 
 ### Pull Docker Image
