@@ -34,3 +34,22 @@ func GetRedisClient() *redis.Client {
 	return redisClient
 }
 
+func GetRequest(key string) (string, error) {
+	rdc := GetRedisClient()
+	val, err := rdc.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return "", nil
+	}
+	if err != nil {
+			panic(err)
+	}
+	return val, nil
+}
+
+func SetRequest(key string, value string) {
+	rdc := GetRedisClient()
+	err := rdc.Set(ctx, key, value, 0).Err()
+	if err != nil {
+			panic(err)
+	}
+}

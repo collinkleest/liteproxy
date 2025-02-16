@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"liteproxy/src/redis"
@@ -40,6 +42,18 @@ func handleProxyRequest(c *gin.Context) {
 		return
 	}
 
+	val, err := redis.GetRequest(c.Query("url"))
+	if err == nil && val != "" {
+		var cachedResponse interface{}
+		err := json.Unmarshal([]byte(val), &cachedResponse)
+		if  err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse cached response"})
+			return
+		}
+		c.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	req, err := http.NewRequest(c.Request.Method, target, c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
@@ -64,9 +78,17 @@ func handleProxyRequest(c *gin.Context) {
 		return
 	}
 
+	respBody, err := io.ReadAll(resp.Body) // Read the response body into memory
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response body"})
+		return
+	}
+
+	redis.SetRequest(c.Query("url"), string(respBody))
+
 	addCorsHeaders(c)
 	c.Status(resp.StatusCode)
-	io.Copy(c.Writer, resp.Body)
+	io.Copy(c.Writer, bytes.NewReader(respBody))
 }
 
 func handleRequest(c *gin.Context) {
@@ -79,7 +101,6 @@ func handleRequest(c *gin.Context) {
 
 func main() {
 	const port string = ":8082"
-	redis.GetRedisClient()
 	r := gin.Default()
 	r.Any("/proxy", handleRequest)
 	fmt.Println("Running liteproxy on", port)
