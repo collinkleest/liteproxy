@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"liteproxy/src/redis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -78,6 +79,7 @@ func handleRequest(c *gin.Context) {
 
 func main() {
 	const port string = ":8082"
+	redis.GetRedisClient()
 	r := gin.Default()
 	r.Any("/proxy", handleRequest)
 	fmt.Println("Running liteproxy on", port)
