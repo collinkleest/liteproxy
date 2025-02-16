@@ -1,14 +1,14 @@
 name: liteproxy
 
 networks:
- kong:
-  driver: bridge
-  name: kong-net 
+  kong:
+    driver: bridge
+    name: kong-net
 
 services:
   liteproxy:
     container_name: liteproxy-service
-    image: 'ckleest/liteproxy:latest'
+    image: "ckleest/liteproxy:latest"
     ports:
       - "8082:8082"
     networks:
@@ -16,6 +16,17 @@ services:
     environment:
       - GIN_MODE=release
     restart: always
+    depends_on:
+      - redis
     labels:
       - "liteproxy webservice"
       - "corsproxy webservice"
+
+  redis:
+    image: "redis:latest"
+    container_name: liteproxy-redis
+    restart: always
+    networks:
+      - kong
+    ports:
+      - "6379:6379"
