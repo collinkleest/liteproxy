@@ -27,6 +27,11 @@ Use /proxy with the query parameter `url` with your target url to hit the upstre
 
 ### Quickstart
 
+Start local redis instance, we can use our local docker compose start our redis cache.
+```bash
+docker compose -f 'compose.yaml' up -d --build 'redis'
+```
+
 Download go dependencies
 
 ```bash
