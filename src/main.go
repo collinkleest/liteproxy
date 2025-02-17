@@ -8,6 +8,7 @@ import (
 	"io"
 	"liteproxy/src/redis"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -91,9 +92,19 @@ func handleProxyRequest(c *gin.Context) {
 	io.Copy(c.Writer, bytes.NewReader(respBody))
 }
 
+func setGinMode() {
+	ginMode := os.Getenv("GIN_MODE")
+	if ginMode == gin.DebugMode {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+}
+
 func main() {
 	const port string = ":8082"
 	r := gin.Default()
+	setGinMode()
 	r.OPTIONS("/proxy", handlePreflightRequest)
 	r.GET("/proxy", handleProxyRequest)
 	fmt.Println("Running liteproxy on", port)
