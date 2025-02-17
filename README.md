@@ -9,11 +9,21 @@ This project is written in go, to install golang visit this [webpage](https://go
 
 ## Table of Contents
 
-1. [Quickstart](#quickstart)
-2. [Docs](#docs)
-3. [Pull Docker Image](#pull-docker-image)
-4. [Docker Build / Publish](#docker-build-and-publish)
-5. [Docker Compose](#docker-compose)
+1. [Usage](#usage)
+2. [Quickstart](#quickstart)
+3. [Docs](#docs)
+4. [Pull Docker Image](#pull-docker-image)
+5. [Docker Build / Publish](#docker-build-and-publish)
+6. [Docker Compose](#docker-compose)
+
+### Usage
+Currently the proxy only supports `GET` requests.
+The production endpoint for the api is `https://api.liteproxy.collinkleest.com`
+
+Use /proxy with the query parameter `url` with your target url to hit the upstream endpoint.
+`/proxy?url=<upstream url>`
+
+**Note:** the proxy caches results for 15 minutes to enhance the speed and reliability.
 
 ### Quickstart
 
