@@ -14,7 +14,7 @@ import (
 
 func addCorsHeaders(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	c.Header("Access-Control-Allow-Credentials", "true")
 }
@@ -46,7 +46,7 @@ func handleProxyRequest(c *gin.Context) {
 	if err == nil && val != "" {
 		var cachedResponse interface{}
 		err := json.Unmarshal([]byte(val), &cachedResponse)
-		if  err != nil {
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse cached response"})
 			return
 		}
@@ -91,18 +91,11 @@ func handleProxyRequest(c *gin.Context) {
 	io.Copy(c.Writer, bytes.NewReader(respBody))
 }
 
-func handleRequest(c *gin.Context) {
-	if c.Request.Method == http.MethodOptions {
-		handlePreflightRequest(c)
-	} else {
-		handleProxyRequest(c)
-	}
-}
-
 func main() {
 	const port string = ":8082"
 	r := gin.Default()
-	r.Any("/proxy", handleRequest)
+	r.OPTIONS("/proxy", handlePreflightRequest)
+	r.GET("/proxy", handleProxyRequest)
 	fmt.Println("Running liteproxy on", port)
 	r.Run(port)
 }
