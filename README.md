@@ -6,6 +6,15 @@ This project is used purely as a way to learn some golang and provide a lightwei
 
 This project is written in go, to install golang visit this [webpage](https://go.dev/doc/install)
 
+
+## Table of Contents
+
+1. [Quickstart](#quickstart)
+2. [Docs](#docs)
+3. [Pull Docker Image](#pull-docker-image)
+4. [Docker Build / Publish](#docker-build-and-publish)
+5. [Docker Compose](#docker-compose)
+
 ### Quickstart
 
 Download go dependencies
@@ -31,6 +40,12 @@ Run the application with live reloading via [air](https://github.com/air-verse/a
 air -c .air.toml
 ```
 
+### Docs
+View the architecture diagram below. 
+
+
+![liteproxy arch diagram](docs/arch.svg)
+
 ### Pull Docker Image
 
 You can pull the [docker image](https://hub.docker.com/r/ckleest/liteproxy) from docker hub.
@@ -39,7 +54,7 @@ You can pull the [docker image](https://hub.docker.com/r/ckleest/liteproxy) from
 docker pull ckleest/liteproxy
 ```
 
-### Docker Build / Publish
+### Docker Build and Publish
 
 To build the image
 
