@@ -38,3 +38,6 @@ go.work.sum
 
 # Local env files
 .env
+
+# temp air build
+tmp/
