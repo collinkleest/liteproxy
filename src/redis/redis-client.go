@@ -61,7 +61,7 @@ func GetRequest(key string) (string, error) {
 
 func SetRequest(key string, value string) {
 	rdc := GetRedisClient()
-	err := rdc.Set(ctx, key, value, defaultExpiration).Err()
+	err := rdc.Set(ctx, "cache:"+key, value, defaultExpiration).Err()
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func SetRequest(key string, value string) {
 
 func SetRequestWithExpiration(key string, value string, expiration time.Duration) {
 	rdc := GetRedisClient()
-	err := rdc.Set(ctx, key, value, expiration).Err()
+	err := rdc.Set(ctx, "cache:"+key, value, expiration).Err()
 	if err != nil {
 		panic(err)
 	}
