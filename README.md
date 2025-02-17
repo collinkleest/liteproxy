@@ -26,6 +26,11 @@ Build the app
 go build src/main.go
 ```
 
+Run the application with live reloading via [air](https://github.com/air-verse/air)
+```bash
+air -c .air.toml
+```
+
 ### Pull Docker Image
 
 You can pull the [docker image](https://hub.docker.com/r/ckleest/liteproxy) from docker hub.
