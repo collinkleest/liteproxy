@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
@@ -9,6 +8,7 @@ import (
 	"liteproxy/src/redis"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,24 +72,62 @@ func handleProxyRequest(c *gin.Context) {
 
 	defer resp.Body.Close()
 
+	// Copy headers from response
+	exposedHeaders := map[string]bool{
+		"accept-ranges":       true,
+		"age":                 true,
+		"cache-control":       true,
+		"content-length":      true,
+		"content-language":    true,
+		"content-type":        true,
+		"date":                true,
+		"etag":                true,
+		"expires":             true,
+		"last-modified":       true,
+		"location":            true,
+		"pragma":              true,
+		"server":              true,
+		"transfer-encoding":   true,
+		"vary":                true,
+		"x-github-request-id": true,
+		"x-redirected-url":    true,
+	}
+	for key, values := range resp.Header {
+		_, exists := exposedHeaders[strings.ToLower(key)]
+		if key == "Content-Length" || key == "Transfer-Encoding" || key == "Connection" || exists == false {
+			continue
+		}
+		for _, value := range values {
+			c.Header(key, value)
+			// c.Writer.Header().Add(key, value)
+		}
+	}
+
+	fmt.Println(resp.Header)
+
 	encoding := resp.Header.Get("Content-Encoding")
-	resp.Body, err = decompressBody(resp.Body, encoding)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decompress response"})
-		return
+	if encoding != "" {
+		resp.Body, err = decompressBody(resp.Body, encoding)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decompress response"})
+			return
+		}
 	}
 
-	respBody, err := io.ReadAll(resp.Body) // Read the response body into memory
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response body"})
-		return
-	}
+	// respBody, err := io.ReadAll(resp.Body) // Read the response body into memory
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response body"})
+	// 	return
+	// }
 
-	redis.SetRequest(c.Query("url"), string(respBody))
+	// redis.SetRequest(c.Query("url"), string(respBody))
 
 	addCorsHeaders(c)
 	c.Status(resp.StatusCode)
-	io.Copy(c.Writer, bytes.NewReader(respBody))
+	_, err = io.Copy(c.Writer, resp.Body)
+	if err != nil {
+		fmt.Println("Error writing response:", err)
+	}
 }
 
 func setGinMode() {
